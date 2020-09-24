@@ -1,0 +1,3 @@
+name: FalloutPlugin
+main: io.github.jtagscherer.falloutplugin.FalloutPlugin
+version: 0.0.1
