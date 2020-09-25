@@ -71,7 +71,7 @@ public class FalloutPlugin extends JavaPlugin {
                 return;
             }
 
-            this.gracePeriodManager.start(duration);
+            this.gracePeriodManager.start(Math.max(duration, 10));
             this.revivalManager.start();
         } else if (args[0].equalsIgnoreCase("stop")) {
             world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
@@ -79,7 +79,7 @@ public class FalloutPlugin extends JavaPlugin {
             this.gracePeriodManager.stop();
             this.revivalManager.stop();
         } else if (args[0].equalsIgnoreCase("reviveme")) {
-            this.revivalManager.revivePlayer(sender);
+            this.revivalManager.revivePlayerByName(sender.getName());
         }
     }
 

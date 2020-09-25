@@ -5,18 +5,10 @@ import org.bukkit.Effect;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 public class ExposureDamageManager implements Listener {
-
-    private static final int EFFECT_DURATION = 200;
 
     private Plugin plugin;
     private Integer taskId;
@@ -49,14 +41,12 @@ public class ExposureDamageManager implements Listener {
         byte skyLight = player.getLocation().getBlock().getLightFromSky();
 
         if (skyLight > 0) {
-            player.playSound(player.getLocation(), Sound.BLOCK_FIRE_AMBIENT, SoundCategory.PLAYERS, 10, 1);
-            player.playEffect(player.getLocation(), Effect.MOBSPAWNER_FLAMES, null);
-            player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, EFFECT_DURATION, 0));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, EFFECT_DURATION, 0));
-
-            if ("[DEAD]".equals(player.getCustomName())) {
-                player.damage(2);
+            if (player.getHealth() > 2) {
+                player.playSound(player.getLocation(), Sound.BLOCK_FIRE_AMBIENT, SoundCategory.PLAYERS, 10, 1);
+                player.playEffect(player.getLocation(), Effect.MOBSPAWNER_FLAMES, null);
             }
+
+            player.damage(2);
         }
     }
 }
