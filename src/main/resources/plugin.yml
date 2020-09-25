@@ -5,4 +5,4 @@ author: jtagscherer
 commands:
   fallout:
     description: Start and stop the Fallout plugin.
-    usage: /fallout [start/stop]
+    usage: /fallout [start graceperiod/stop]
