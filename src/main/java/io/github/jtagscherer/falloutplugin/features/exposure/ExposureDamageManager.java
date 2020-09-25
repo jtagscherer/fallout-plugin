@@ -5,11 +5,16 @@ import org.bukkit.Effect;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public class ExposureDamageManager {
+public class ExposureDamageManager implements Listener {
 
     private static final int EFFECT_DURATION = 200;
 
@@ -52,5 +57,4 @@ public class ExposureDamageManager {
             player.damage(1);
         }
     }
-
 }
