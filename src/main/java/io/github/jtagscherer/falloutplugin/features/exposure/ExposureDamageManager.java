@@ -51,10 +51,12 @@ public class ExposureDamageManager implements Listener {
         if (skyLight > 0) {
             player.playSound(player.getLocation(), Sound.BLOCK_FIRE_AMBIENT, SoundCategory.PLAYERS, 10, 1);
             player.playEffect(player.getLocation(), Effect.MOBSPAWNER_FLAMES, null);
-            player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, EFFECT_DURATION, 1));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, EFFECT_DURATION, 0));
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, EFFECT_DURATION, 0));
 
-            player.damage(2);
+            if ("[DEAD]".equals(player.getCustomName())) {
+                player.damage(2);
+            }
         }
     }
 }

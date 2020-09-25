@@ -50,10 +50,6 @@ public class FalloutPlugin extends JavaPlugin {
     }
 
     private void validateCommand(Player sender, Command command, String[] args) throws InvalidCommandException {
-        if (!sender.isOp()) {
-            throw new InvalidCommandException("You need to be an operator to control this plugin.");
-        }
-
         if (args.length < 1 || !(args[0].equalsIgnoreCase("start") || args[0].equalsIgnoreCase("stop") || args[0].equalsIgnoreCase("reviveme"))) {
             throw new InvalidCommandException(String.format("Usage: %s", command.getUsage()));
         }
@@ -84,7 +80,6 @@ public class FalloutPlugin extends JavaPlugin {
             this.revivalManager.stop();
         } else if (args[0].equalsIgnoreCase("reviveme")) {
             this.revivalManager.revivePlayer(sender);
-            sender.setWalkSpeed(0.5f);
         }
     }
 

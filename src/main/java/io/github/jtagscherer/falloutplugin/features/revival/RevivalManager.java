@@ -1,5 +1,6 @@
 package io.github.jtagscherer.falloutplugin.features.revival;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -33,8 +34,15 @@ public class RevivalManager implements Listener {
 
             if (p.getHealth() - damageEvent.getFinalDamage() <= 0) {
                 damageEvent.setCancelled(true);
-                p.setCustomName("[DEAD]");
-                p.sendTitle("You died.", "Other players can revive you by getting close to you.", 7, 20*300, 7);
+
+                if (!this.isPlayerDead(p)) {
+                    p.setCustomName("[DEAD]");
+                    p.sendTitle("You died.", "Other players can revive you.", 7, 20 * 300, 7);
+                    p.setSwimming(true);
+                    Bukkit.getOnlinePlayers().forEach(player -> {
+                        player.sendMessage(String.format("%s has died! Revive them by right-clicking.", p.getDisplayName()));
+                    });
+                }
             }
         }
     }
@@ -43,8 +51,11 @@ public class RevivalManager implements Listener {
     public void onRightClickDeadPlayer(PlayerInteractEntityEvent interactEntityName) {
         if (interactEntityName.getRightClicked() instanceof Player) {
             Player p = ((Player) interactEntityName.getRightClicked());
-            if (p.getCustomName().equals("[DEAD]")) {
-                p.setCustomName("");
+            if (this.isPlayerDead(p)) {
+                this.revivePlayer(p);
+                Bukkit.getOnlinePlayers().forEach(player -> {
+                    player.sendMessage(String.format("%s has been revived by %s!", p.getDisplayName(), interactEntityName.getPlayer().getDisplayName()));
+                });
             }
         }
     }
@@ -53,7 +64,7 @@ public class RevivalManager implements Listener {
     public void onDeadPlayerMove(PlayerMoveEvent moveEvent) {
         if (!this.isRunning) return;
 
-        if (moveEvent.getPlayer().getCustomName().equals("[DEAD]")) {
+        if ("[DEAD]".equals(moveEvent.getPlayer().getCustomName())) {
             moveEvent.setCancelled(true);
         }
     }
@@ -62,13 +73,18 @@ public class RevivalManager implements Listener {
     public void onDeadPlayerBlockInteraction(PlayerInteractEvent interactEntityEvent) {
         if (!this.isRunning) return;
 
-        if (interactEntityEvent.getPlayer().getCustomName().equals("[DEAD]")) {
+        if (this.isPlayerDead(interactEntityEvent.getPlayer())) {
             interactEntityEvent.setCancelled(true);
         }
     }
+
     public void revivePlayer(Player player) {
-        player.setCustomName("");
-        player.sendMessage("you revived yourself");
+        player.setCustomName(null);
         player.resetTitle();
+        player.setHealth(6);
+    }
+
+    private boolean isPlayerDead(Player player) {
+        return "[DEAD]".equals(player.getCustomName());
     }
 }
