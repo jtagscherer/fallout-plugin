@@ -1,29 +1,21 @@
 package io.github.jtagscherer.falloutplugin;
 
 import io.github.jtagscherer.falloutplugin.exceptions.InvalidCommandException;
-import org.apache.commons.lang.StringUtils;
-import org.bukkit.*;
-import org.bukkit.block.*;
-import org.bukkit.block.data.BlockData;
+import io.github.jtagscherer.falloutplugin.features.exposure.ExposureDamageManager;
+import org.bukkit.GameRule;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
-import org.bukkit.metadata.MetadataValue;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.BoundingBox;
-import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Vector;
-
-import java.util.Collection;
-import java.util.List;
 
 public class FalloutPlugin extends JavaPlugin {
+
+    private ExposureDamageManager exposureDamageManager;
+
+    public FalloutPlugin() {
+        this.exposureDamageManager = new ExposureDamageManager(this);
+    }
 
     @Override
     public void onEnable() {
@@ -65,14 +57,23 @@ public class FalloutPlugin extends JavaPlugin {
     }
 
     private void handleCommand(Player sender, String argument) {
-        sender.playSound(sender.getLocation(), Sound.AMBIENT_NETHER_WASTES_MOOD, SoundCategory.PLAYERS, 10, 1);
+        World world = sender.getWorld();
+
+        if (argument.equalsIgnoreCase("start")) {
+            world.setTime(6000);
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+
+            this.exposureDamageManager.start();
+        } else if (argument.equalsIgnoreCase("stop")) {
+            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
+
+            this.exposureDamageManager.stop();
+        }
+
+        /*sender.playSound(sender.getLocation(), Sound.AMBIENT_NETHER_WASTES_MOOD, SoundCategory.PLAYERS, 10, 1);
         sender.playSound(sender.getLocation(), Sound.AMBIENT_BASALT_DELTAS_LOOP, SoundCategory.PLAYERS, 3, 1);
         sender.playSound(sender.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.PLAYERS, 5, 0.1f);
-        sender.spawnParticle(Particle.ASH, sender.getLocation(), 100000, 5, 5, 5);
-        
-        /*sender.playEffect(sender.getLocation(), Effect.MOBSPAWNER_FLAMES, null);
-        sender.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, 200, 1));
-        sender.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 200, 0));*/
+        sender.spawnParticle(Particle.ASH, sender.getLocation(), 100000, 5, 5, 5);*/
     }
 
 }
