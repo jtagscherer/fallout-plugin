@@ -49,7 +49,7 @@ public class ExposureDamageManager {
             player.addPotionEffect(new PotionEffect(PotionEffectType.CONFUSION, EFFECT_DURATION, 1));
             player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, EFFECT_DURATION, 0));
 
-            player.damage(1);
+            player.damage(2);
         }
     }
 
