@@ -31,7 +31,7 @@ public class GracePeriodManager {
 
         this.secondsTotal = duration;
         this.secondsRemaining = duration;
-        this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, () -> this.updateProgress(), 0L, 20L);
+        this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, this::updateProgress, 0L, 20L);
     }
 
     public void stop() {

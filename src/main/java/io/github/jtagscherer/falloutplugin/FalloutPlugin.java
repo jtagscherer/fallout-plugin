@@ -36,7 +36,7 @@ public class FalloutPlugin extends JavaPlugin {
             Player player = (Player) sender;
 
             try {
-                this.validateCommand(player, command, args);
+                this.validateCommand(command, args);
             } catch (InvalidCommandException e) {
                 player.sendMessage(e.getMessage());
                 return true;
@@ -49,7 +49,7 @@ public class FalloutPlugin extends JavaPlugin {
         return false;
     }
 
-    private void validateCommand(Player sender, Command command, String[] args) throws InvalidCommandException {
+    private void validateCommand(Command command, String[] args) throws InvalidCommandException {
         if (args.length < 1 || !(args[0].equalsIgnoreCase("start") || args[0].equalsIgnoreCase("stop") || args[0].equalsIgnoreCase("reviveme"))) {
             throw new InvalidCommandException(String.format("Usage: %s", command.getUsage()));
         }
