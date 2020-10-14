@@ -18,11 +18,7 @@ public class ExposureDamageManager implements Listener {
     }
 
     public void start() {
-        this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, new Runnable() {
-            public void run() {
-                checkExposureForAllPlayers();
-            }
-        }, 0L, 20L);
+        this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, this::checkExposureForAllPlayers, 0L, 20L);
     }
 
     public void stop() {
