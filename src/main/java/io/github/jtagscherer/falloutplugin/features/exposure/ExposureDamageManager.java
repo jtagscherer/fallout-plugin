@@ -34,9 +34,7 @@ public class ExposureDamageManager implements Listener {
     }
 
     private void dealDamageUponExposure(Player player) {
-        byte skyLight = player.getLocation().getBlock().getLightFromSky();
-
-        if (skyLight > 0) {
+        if (this.isPlayerExposed(player)) {
             if (player.getHealth() > 2) {
                 player.playSound(player.getLocation(), Sound.BLOCK_FIRE_AMBIENT, SoundCategory.PLAYERS, 10, 1);
                 player.playEffect(player.getLocation(), Effect.MOBSPAWNER_FLAMES, null);
@@ -45,4 +43,11 @@ public class ExposureDamageManager implements Listener {
             player.damage(2);
         }
     }
+
+    private boolean isPlayerExposed(Player player) {
+        byte skyLight = player.getLocation().getBlock().getLightFromSky();
+
+        return skyLight > 0;
+    }
+
 }
