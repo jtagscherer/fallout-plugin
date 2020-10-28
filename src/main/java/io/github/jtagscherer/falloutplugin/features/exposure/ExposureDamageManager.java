@@ -12,9 +12,11 @@ public class ExposureDamageManager implements Listener {
 
     private Plugin plugin;
     private Integer taskId;
+    private ExposureTester exposureTester;
 
     public ExposureDamageManager(Plugin plugin) {
         this.plugin = plugin;
+        this.exposureTester = new ExposureTester(10);
     }
 
     public void start() {
@@ -34,7 +36,7 @@ public class ExposureDamageManager implements Listener {
     }
 
     private void dealDamageUponExposure(Player player) {
-        if (this.isPlayerExposed(player)) {
+        if (this.exposureTester.isPlayerExposed(player)) {
             if (player.getHealth() > 2) {
                 player.playSound(player.getLocation(), Sound.BLOCK_FIRE_AMBIENT, SoundCategory.PLAYERS, 10, 1);
                 player.playEffect(player.getLocation(), Effect.MOBSPAWNER_FLAMES, null);
@@ -42,12 +44,6 @@ public class ExposureDamageManager implements Listener {
 
             player.damage(2);
         }
-    }
-
-    private boolean isPlayerExposed(Player player) {
-        byte skyLight = player.getLocation().getBlock().getLightFromSky();
-
-        return skyLight > 0;
     }
 
 }
