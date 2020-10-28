@@ -60,7 +60,7 @@ public class RevivalManager implements Listener {
                     player.setGameMode(GameMode.SPECTATOR);
 
                     player.sendTitle("You died.", "Other players can revive you.", 7, 20 * 10, 7);
-                    this.sendMessageToAllPlayers(String.format("%s has died due to %s!", player.getDisplayName(), damageEvent.getCause()));
+                    this.sendMessageToAllPlayers(String.format("%s has died!", player.getDisplayName()));
 
                     this.deadPlayers.put(player.getName(), block.getLocation());
                 }
@@ -116,10 +116,12 @@ public class RevivalManager implements Listener {
             return;
         }
 
-        this.revivePlayer(player, this.deadPlayers.get(name));
+        Location deathLocation = this.deadPlayers.get(name);
+
+        this.revivePlayer(player, deathLocation);
         this.sendMessageToAllPlayers(String.format("%s has revived themself!", name));
 
-        Block block = player.getWorld().getBlockAt(this.deadPlayers.get(name));
+        Block block = player.getWorld().getBlockAt(deathLocation);
         block.setType(Material.AIR);
     }
 
