@@ -12,8 +12,6 @@ import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
-import java.util.Map;
-
 public class ExposureDamageManager implements Listener {
 
     private Plugin plugin;
@@ -50,7 +48,7 @@ public class ExposureDamageManager implements Listener {
                 player.playEffect(player.getLocation(), Effect.MOBSPAWNER_FLAMES, null);
             }
 
-            player.damage(2);
+            player.damage(this.calculateDamage(player));
         }
     }
 
