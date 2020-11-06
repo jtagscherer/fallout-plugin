@@ -1,5 +1,6 @@
 package io.github.jtagscherer.falloutplugin.features.graceperiod;
 
+import io.github.jtagscherer.falloutplugin.features.effects.EffectsManager;
 import io.github.jtagscherer.falloutplugin.features.exposure.ExposureDamageManager;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
@@ -13,6 +14,7 @@ public class GracePeriodManager {
 
     private Plugin plugin;
     private ExposureDamageManager exposureDamageManager;
+    private EffectsManager effectsManager;
     private BossBar bossBar;
     private Integer taskId;
 
@@ -22,6 +24,7 @@ public class GracePeriodManager {
     public GracePeriodManager(Plugin plugin) {
         this.plugin = plugin;
         this.exposureDamageManager = new ExposureDamageManager(this.plugin);
+        this.effectsManager = new EffectsManager(this.plugin);
         this.bossBar = Bukkit.createBossBar(StringUtils.EMPTY, BarColor.GREEN, BarStyle.SOLID);
     }
 
@@ -37,6 +40,7 @@ public class GracePeriodManager {
     public void stop() {
         this.removeBossBar();
         this.exposureDamageManager.stop();
+        this.effectsManager.stop();
     }
 
     private void updateProgress() {
@@ -51,6 +55,7 @@ public class GracePeriodManager {
         if (this.secondsRemaining <= 0) {
             this.removeBossBar();
             this.startExposure();
+            this.effectsManager.start();
         }
     }
 
