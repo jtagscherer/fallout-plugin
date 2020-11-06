@@ -16,7 +16,8 @@ public class GracePeriodManager {
     private ExposureDamageManager exposureDamageManager;
     private EffectsManager effectsManager;
     private BossBar bossBar;
-    private Integer taskId;
+
+    private Integer updateTaskId;
 
     private int secondsTotal;
     private int secondsRemaining;
@@ -34,7 +35,8 @@ public class GracePeriodManager {
 
         this.secondsTotal = duration;
         this.secondsRemaining = duration;
-        this.taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, this::updateProgress, 0L, 20L);
+        this.updateTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, this::updateProgress, 0L, 20L);
+        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, this::playPanicSounds);
     }
 
     public void stop() {
@@ -50,6 +52,7 @@ public class GracePeriodManager {
 
         if (this.secondsRemaining <= 10) {
             this.bossBar.setColor(BarColor.RED);
+            Bukkit.getOnlinePlayers().forEach(this::playCountdownSounds);
         }
 
         if (this.secondsRemaining <= 0) {
@@ -62,8 +65,8 @@ public class GracePeriodManager {
     private void removeBossBar() {
         Bukkit.getOnlinePlayers().forEach(this.bossBar::removePlayer);
 
-        if (this.taskId != null) {
-            Bukkit.getScheduler().cancelTask(this.taskId);
+        if (this.updateTaskId != null) {
+            Bukkit.getScheduler().cancelTask(this.updateTaskId);
         }
     }
 
@@ -72,15 +75,70 @@ public class GracePeriodManager {
     }
 
     private void startExposure() {
-        Bukkit.getOnlinePlayers().forEach(this::playNukeSounds);
+        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, this::playNukeSounds);
         this.exposureDamageManager.start();
     }
 
-    private void playNukeSounds(Player player) {
-        player.playSound(player.getLocation(), Sound.AMBIENT_NETHER_WASTES_MOOD, SoundCategory.PLAYERS, 15, 1);
-        player.playSound(player.getLocation(), Sound.AMBIENT_BASALT_DELTAS_LOOP, SoundCategory.PLAYERS, 3, 1);
-        player.playSound(player.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.PLAYERS, 5, 0.1f);
-        player.spawnParticle(Particle.ASH, player.getLocation(), 100000, 5, 5, 5);
+    private void playPanicSounds() {
+        Long finalCountdownStart = null;
+        double finalCountdownSoundLength = 6.0;
+
+        while (this.secondsRemaining > 0) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_FLUTE, SoundCategory.PLAYERS, 5, (float) (Math.sin(System.currentTimeMillis() / 2000.0) / 2.0 + 0.5));
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 5, (float) (Math.sin((System.currentTimeMillis() / 2000.0) + 10) / 2.0 + 0.5));
+
+                if (this.secondsRemaining < finalCountdownSoundLength - 1) {
+                    if (finalCountdownStart == null) {
+                        finalCountdownStart = System.currentTimeMillis();
+                    }
+
+                    double countdownRatio = (System.currentTimeMillis() - finalCountdownStart) / 1000.0;
+                    player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, SoundCategory.PLAYERS, (float) (countdownRatio / 4.0), (float) ((finalCountdownSoundLength - countdownRatio) / finalCountdownSoundLength));
+                }
+            }
+
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+    }
+
+    private void playCountdownSounds(Player player) {
+        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASEDRUM, SoundCategory.PLAYERS, 10, 1);
+    }
+
+    private void playNukeSounds() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.playSound(player.getLocation(), Sound.AMBIENT_NETHER_WASTES_MOOD, SoundCategory.PLAYERS, 15, 1);
+            player.playSound(player.getLocation(), Sound.AMBIENT_BASALT_DELTAS_LOOP, SoundCategory.PLAYERS, 3, 1);
+            player.playSound(player.getLocation(), Sound.ENTITY_DRAGON_FIREBALL_EXPLODE, SoundCategory.PLAYERS, 5, 0.1f);
+            player.spawnParticle(Particle.ASH, player.getLocation(), 100000, 5, 5, 5);
+        }
+
+        for (int i = 0; i < 16; i++) {
+            try {
+                Thread.sleep((long) (Math.random() * 200) + 100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                Location location = player.getLocation().clone();
+                location.setYaw(location.getYaw() + (float) ((Math.random() - 0.5) * 5));
+                location.setPitch(location.getPitch() + (float) ((Math.random() - 0.5) * 5));
+
+                Bukkit.getScheduler().runTask(this.plugin, () -> {
+                    player.teleport(location);
+                });
+
+                player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST_FAR, SoundCategory.PLAYERS, (float) (Math.random() * 20 + 2), (float) (Math.random()));
+            }
+        }
     }
 
 }
