@@ -2,6 +2,7 @@ package io.github.jtagscherer.falloutplugin.features.graceperiod;
 
 import io.github.jtagscherer.falloutplugin.features.effects.EffectsManager;
 import io.github.jtagscherer.falloutplugin.features.exposure.ExposureDamageManager;
+import io.github.jtagscherer.falloutplugin.features.terrain.TerrainManager;
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
@@ -14,6 +15,7 @@ public class GracePeriodManager {
 
     private Plugin plugin;
     private ExposureDamageManager exposureDamageManager;
+    private TerrainManager terrainManager;
     private EffectsManager effectsManager;
     private BossBar bossBar;
 
@@ -25,6 +27,7 @@ public class GracePeriodManager {
     public GracePeriodManager(Plugin plugin) {
         this.plugin = plugin;
         this.exposureDamageManager = new ExposureDamageManager(this.plugin);
+        this.terrainManager = new TerrainManager(this.plugin);
         this.effectsManager = new EffectsManager(this.plugin);
         this.bossBar = Bukkit.createBossBar(StringUtils.EMPTY, BarColor.GREEN, BarStyle.SOLID);
     }
@@ -42,6 +45,7 @@ public class GracePeriodManager {
     public void stop() {
         this.removeBossBar();
         this.exposureDamageManager.stop();
+        this.terrainManager.stop();
         this.effectsManager.stop();
     }
 
@@ -58,7 +62,6 @@ public class GracePeriodManager {
         if (this.secondsRemaining <= 0) {
             this.removeBossBar();
             this.startExposure();
-            this.effectsManager.start();
         }
     }
 
@@ -77,10 +80,12 @@ public class GracePeriodManager {
     private void startExposure() {
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, this::playNukeSounds);
         this.exposureDamageManager.start();
+        this.terrainManager.start();
+        this.effectsManager.start();
     }
 
     private void playPanicSounds() {
-        Long soundStart = System.currentTimeMillis();
+        long soundStart = System.currentTimeMillis();
         double soundRatio;
         float soundVolume;
 
