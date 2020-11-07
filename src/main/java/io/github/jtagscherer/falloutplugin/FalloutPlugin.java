@@ -3,7 +3,6 @@ package io.github.jtagscherer.falloutplugin;
 import io.github.jtagscherer.falloutplugin.exceptions.InvalidCommandException;
 import io.github.jtagscherer.falloutplugin.features.graceperiod.GracePeriodManager;
 import io.github.jtagscherer.falloutplugin.features.revival.RevivalManager;
-import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
