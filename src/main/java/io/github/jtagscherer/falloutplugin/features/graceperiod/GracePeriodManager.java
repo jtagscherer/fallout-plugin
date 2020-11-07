@@ -128,14 +128,6 @@ public class GracePeriodManager {
             }
 
             for (Player player : Bukkit.getOnlinePlayers()) {
-                Location location = player.getLocation().clone();
-                location.setYaw(location.getYaw() + (float) ((Math.random() - 0.5) * 5));
-                location.setPitch(location.getPitch() + (float) ((Math.random() - 0.5) * 5));
-
-                Bukkit.getScheduler().runTask(this.plugin, () -> {
-                    player.teleport(location);
-                });
-
                 player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST_FAR, SoundCategory.PLAYERS, (float) (Math.random() * 20 + 2), (float) (Math.random()));
             }
         }
