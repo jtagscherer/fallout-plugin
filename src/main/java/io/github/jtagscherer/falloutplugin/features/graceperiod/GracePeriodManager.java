@@ -80,20 +80,28 @@ public class GracePeriodManager {
     }
 
     private void playPanicSounds() {
+        Long soundStart = System.currentTimeMillis();
+        double soundRatio;
+        float soundVolume;
+
         Long finalCountdownStart = null;
         double finalCountdownSoundLength = 6.0;
+        double countdownRatio;
 
         while (this.secondsRemaining > 0) {
+            soundRatio = (System.currentTimeMillis() - soundStart) / 2000.0;
+            soundVolume = (float) Math.min(soundRatio, 5);
+
             for (Player player : Bukkit.getOnlinePlayers()) {
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_FLUTE, SoundCategory.PLAYERS, 5, (float) (Math.sin(System.currentTimeMillis() / 2000.0) / 2.0 + 0.5));
-                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, 5, (float) (Math.sin((System.currentTimeMillis() / 2000.0) + 10) / 2.0 + 0.5));
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_FLUTE, SoundCategory.PLAYERS, soundVolume, (float) (Math.sin(soundRatio) / 2.0 + 0.5));
+                player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, SoundCategory.PLAYERS, soundVolume, (float) (Math.sin(soundRatio + 10) / 2.0 + 0.5));
 
                 if (this.secondsRemaining < finalCountdownSoundLength - 1) {
                     if (finalCountdownStart == null) {
                         finalCountdownStart = System.currentTimeMillis();
                     }
 
-                    double countdownRatio = (System.currentTimeMillis() - finalCountdownStart) / 1000.0;
+                    countdownRatio = (System.currentTimeMillis() - finalCountdownStart) / 1000.0;
                     player.playSound(player.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, SoundCategory.PLAYERS, (float) (countdownRatio / 4.0), (float) ((finalCountdownSoundLength - countdownRatio) / finalCountdownSoundLength));
                 }
             }
