@@ -59,9 +59,6 @@ public class FalloutPlugin extends JavaPlugin {
         World world = sender.getWorld();
 
         if (args[0].equalsIgnoreCase("start")) {
-            world.setTime(6000);
-            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
-
             int duration;
             try {
                 duration = Integer.valueOf(args[1]);
@@ -74,8 +71,6 @@ public class FalloutPlugin extends JavaPlugin {
             this.gracePeriodManager.start(Math.max(duration, 10));
             this.revivalManager.start();
         } else if (args[0].equalsIgnoreCase("stop")) {
-            world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, true);
-
             this.gracePeriodManager.stop();
             this.revivalManager.stop();
         } else if (args[0].equalsIgnoreCase("reviveme")) {
