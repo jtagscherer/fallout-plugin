@@ -64,7 +64,7 @@ public class ExposureTester {
         }
 
         Material blockMaterial = this.world.getBlockAt(location).getType();
-        if (blockMaterial != Material.AIR || blockMaterial.isOccluding()) {
+        if (blockMaterial.isOccluding() || this.isGlassBlock(blockMaterial)) {
             return;
         }
 
@@ -77,6 +77,18 @@ public class ExposureTester {
 
     private boolean isSkyVisibleFromLocation(World world, Location location) {
         return location.getBlockY() > world.getHighestBlockYAt(location);
+    }
+
+    private boolean isGlassBlock(Material blockMaterial) {
+        return blockMaterial == Material.GLASS || blockMaterial == Material.WHITE_STAINED_GLASS
+                || blockMaterial == Material.ORANGE_STAINED_GLASS || blockMaterial == Material.MAGENTA_STAINED_GLASS
+                || blockMaterial == Material.LIGHT_BLUE_STAINED_GLASS || blockMaterial == Material.YELLOW_STAINED_GLASS
+                || blockMaterial == Material.LIME_STAINED_GLASS || blockMaterial == Material.PINK_STAINED_GLASS
+                || blockMaterial == Material.GRAY_STAINED_GLASS || blockMaterial == Material.LIGHT_GRAY_STAINED_GLASS
+                || blockMaterial == Material.CYAN_STAINED_GLASS || blockMaterial == Material.PURPLE_STAINED_GLASS
+                || blockMaterial == Material.BLUE_STAINED_GLASS || blockMaterial == Material.BROWN_STAINED_GLASS
+                || blockMaterial == Material.GREEN_STAINED_GLASS || blockMaterial == Material.RED_STAINED_GLASS
+                || blockMaterial == Material.BLACK_STAINED_GLASS;
     }
 
 }
