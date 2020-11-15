@@ -62,6 +62,8 @@ public class RevivalManager implements Listener {
                     player.sendTitle("You died.", "Other players can revive you.", 7, 20 * 10, 7);
                     this.sendMessageToAllPlayers(String.format("%s has died!", player.getDisplayName()));
 
+                    ExperienceUtil.simulatePlayerDeath(player);
+
                     this.deadPlayers.put(player.getName(), block.getLocation());
                 }
             }
