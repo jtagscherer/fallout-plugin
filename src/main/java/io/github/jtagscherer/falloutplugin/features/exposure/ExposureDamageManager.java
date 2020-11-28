@@ -65,6 +65,10 @@ public class ExposureDamageManager implements Listener {
         ExposureTester exposureTester = new ExposureTester(TEST_RADIUS);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if (!player.getWorld().getEnvironment().equals(World.Environment.NORMAL)) {
+                continue;
+            }
+
             exposureTester.searchLeakLocationsForPlayer(player);
 
             String worldName = player.getWorld().getName();
