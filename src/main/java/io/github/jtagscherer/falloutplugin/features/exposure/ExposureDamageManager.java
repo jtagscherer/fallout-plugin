@@ -14,11 +14,12 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class ExposureDamageManager implements Listener {
 
-    private static final int TEST_RADIUS = 20;
-    private static final int EXPOSURE_RADIUS = 10;
+    static final int TEST_RADIUS = 20;
+    static final int EXPOSURE_RADIUS = 10;
 
     private Plugin plugin;
     private Integer updateTaskId, particleLocationTaskId, particleTaskId;
+    private PlayerActionCache playerActionCache;
     private double baseDamage;
 
     private ReentrantLock locationLock = new ReentrantLock();
@@ -26,16 +27,20 @@ public class ExposureDamageManager implements Listener {
     private Map<String, Set<DistancedLocation>> leakLocations = new HashMap<>();
     private Map<String, Set<Location>> searchedLocations = new HashMap<>();
     private Map<String, List<DistancedLocation>> particleLocations = new HashMap<>();
+    private List<String> changedPlayers = new ArrayList<>();
 
     public ExposureDamageManager(Plugin plugin) {
         this.plugin = plugin;
         this.baseDamage = 2.5;
+        this.playerActionCache = new PlayerActionCache();
     }
 
     public void start() {
         this.updateTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, this::checkExposureForAllPlayers, 0L, 20L);
-        this.particleLocationTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, this::findParticleLocationsForLeaks, 0L, 20L * 5);
-        this.particleTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, this::spawnRadiationParticles, 0L, 20L);
+        this.particleLocationTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, this::findParticleLocationsForLeaks, 10L, 20L);
+        this.particleTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, this::spawnRadiationParticles, 15L, 20L);
+
+        this.plugin.getServer().getPluginManager().registerEvents(this.playerActionCache, plugin);
     }
 
     public void stop() {
@@ -59,9 +64,6 @@ public class ExposureDamageManager implements Listener {
     private void checkExposureForAllPlayers() {
         this.locationLock.lock();
 
-        this.leakLocations.clear();
-        this.searchedLocations.clear();
-
         ExposureTester exposureTester = new ExposureTester(TEST_RADIUS);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -69,18 +71,27 @@ public class ExposureDamageManager implements Listener {
                 continue;
             }
 
+            if (!this.playerActionCache.hasPlayerChanged(player)) {
+                continue;
+            }
+
+            String playerName = player.getName();
+
+            if (!this.leakLocations.containsKey(playerName)) {
+                this.leakLocations.put(playerName, new HashSet<>());
+            }
+            if (!this.searchedLocations.containsKey(playerName)) {
+                this.searchedLocations.put(playerName, new HashSet<>());
+            }
+
+            this.changedPlayers.add(playerName);
+            this.leakLocations.get(playerName).clear();
+            this.searchedLocations.get(playerName).clear();
+
             exposureTester.searchLeakLocationsForPlayer(player);
 
-            String worldName = player.getWorld().getName();
-            if (!this.leakLocations.containsKey(worldName)) {
-                this.leakLocations.put(worldName, new HashSet<>());
-            }
-            if (!this.searchedLocations.containsKey(worldName)) {
-                this.searchedLocations.put(worldName, new HashSet<>());
-            }
-
-            this.leakLocations.get(worldName).addAll(exposureTester.getLeakLocations());
-            this.searchedLocations.get(worldName).addAll(exposureTester.getSearchedLocations());
+            this.leakLocations.get(playerName).addAll(exposureTester.getLeakLocations());
+            this.searchedLocations.get(playerName).addAll(exposureTester.getSearchedLocations());
 
             for (DistancedLocation leakLocation : exposureTester.getLeakLocations()) {
                 if (leakLocation.getDistance() < EXPOSURE_RADIUS) {
@@ -91,6 +102,8 @@ public class ExposureDamageManager implements Listener {
 
             exposureTester.clear();
         }
+
+        this.playerActionCache.clearIntervalCaches();
 
         this.locationLock.unlock();
     }
@@ -131,38 +144,44 @@ public class ExposureDamageManager implements Listener {
         this.locationLock.lock();
         this.particleLocationLock.lock();
 
-        this.particleLocations.clear();
+        for (String playerName : this.changedPlayers) {
+            if (this.particleLocations.containsKey(playerName)) {
+                this.particleLocations.get(playerName).clear();
+            }
 
-        for (String worldName : this.leakLocations.keySet()) {
-            for (DistancedLocation leakLocation : this.leakLocations.get(worldName)) {
-                this.findParticleLocationsForLeak(leakLocation, this.searchedLocations.get(worldName), Bukkit.getWorld(worldName));
+            for (DistancedLocation leakLocation : this.leakLocations.get(playerName)) {
+                this.findParticleLocationsForLeak(leakLocation, this.searchedLocations.get(playerName), Bukkit.getPlayer(playerName));
             }
         }
+
+        this.changedPlayers.clear();
 
         this.locationLock.unlock();
         this.particleLocationLock.unlock();
     }
 
-    private void findParticleLocationsForLeak(DistancedLocation leakLocation, Set<Location> searchedLocations, World world) {
-        BreadthFirstSearch leakParticleSearch = new BreadthFirstSearch(EXPOSURE_RADIUS, world, leakLocation.getLocation())
+    private void findParticleLocationsForLeak(DistancedLocation leakLocation, Set<Location> searchedLocations, Player player) {
+        BreadthFirstSearch leakParticleSearch = new BreadthFirstSearch(EXPOSURE_RADIUS, player.getWorld(), leakLocation.getLocation())
                 .withStopSearchingWhenEncounteringTarget(false)
                 .withAllowedLocations(searchedLocations)
                 .search((l, w) -> true);
 
-        if (!this.particleLocations.containsKey(world.getName())) {
-            this.particleLocations.put(world.getName(), new ArrayList<>());
+        String playerName = player.getName();
+
+        if (!this.particleLocations.containsKey(playerName)) {
+            this.particleLocations.put(playerName, new ArrayList<>());
         }
 
-        this.particleLocations.get(world.getName()).addAll(leakParticleSearch.getTargetLocations());
+        this.particleLocations.get(playerName).addAll(leakParticleSearch.getTargetLocations());
     }
 
     private void spawnRadiationParticles() {
         this.particleLocationLock.lock();
 
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
-            for (String worldName : this.particleLocations.keySet()) {
-                World world = Bukkit.getWorld(worldName);
-                List<DistancedLocation> particleLocationsInWorld = this.particleLocations.get(worldName);
+            for (String playerName : this.particleLocations.keySet()) {
+                List<DistancedLocation> particleLocationsInWorld = this.particleLocations.get(playerName);
+                World world = Bukkit.getPlayer(playerName).getWorld();
 
                 for (int i = 0; i < Math.min(particleLocationsInWorld.size() / 2, 1000); i++) {
                     DistancedLocation particleLocation = particleLocationsInWorld
