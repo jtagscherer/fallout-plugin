@@ -124,8 +124,6 @@ public class ExposureDamageManager implements Listener {
             return this.baseDamage;
         }
 
-        double damageReduction = helmet.getEnchantmentLevel(Enchantment.PROTECTION_FIRE) / 2.0;
-
         Damageable meta = (Damageable) helmet.getItemMeta();
         if (meta != null) {
             if (meta.getDamage() > helmet.getType().getMaxDurability()) {
@@ -137,7 +135,7 @@ public class ExposureDamageManager implements Listener {
             }
         }
 
-        return Math.max(0.5, this.baseDamage - damageReduction);
+        return 0;
     }
 
     private void findParticleLocationsForLeaks() {
