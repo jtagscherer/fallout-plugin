@@ -148,7 +148,13 @@ public class ExposureDamageManager implements Listener {
             }
 
             for (DistancedLocation leakLocation : this.leakLocations.get(playerName)) {
-                this.findParticleLocationsForLeak(leakLocation, this.searchedLocations.get(playerName), Bukkit.getPlayer(playerName));
+                Player player = Bukkit.getPlayer(playerName);
+
+                if (player == null) {
+                    continue;
+                }
+
+                this.findParticleLocationsForLeak(leakLocation, this.searchedLocations.get(playerName), player);
             }
         }
 
@@ -179,7 +185,13 @@ public class ExposureDamageManager implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
             for (String playerName : this.particleLocations.keySet()) {
                 List<DistancedLocation> particleLocationsInWorld = this.particleLocations.get(playerName);
-                World world = Bukkit.getPlayer(playerName).getWorld();
+                Player player = Bukkit.getPlayer(playerName);
+
+                if (player == null) {
+                    continue;
+                }
+
+                World world = player.getWorld();
 
                 for (int i = 0; i < Math.min(particleLocationsInWorld.size() / 2, 1000); i++) {
                     DistancedLocation particleLocation = particleLocationsInWorld
