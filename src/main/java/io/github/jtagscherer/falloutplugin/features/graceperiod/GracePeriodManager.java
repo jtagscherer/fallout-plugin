@@ -3,7 +3,6 @@ package io.github.jtagscherer.falloutplugin.features.graceperiod;
 import io.github.jtagscherer.falloutplugin.features.effects.EffectsManager;
 import io.github.jtagscherer.falloutplugin.features.exposure.ExposureDamageManager;
 import io.github.jtagscherer.falloutplugin.features.terrain.TerrainManager;
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.*;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
@@ -29,7 +28,7 @@ public class GracePeriodManager {
         this.exposureDamageManager = new ExposureDamageManager(this.plugin);
         this.terrainManager = new TerrainManager(this.plugin);
         this.effectsManager = new EffectsManager(this.plugin);
-        this.bossBar = Bukkit.createBossBar(StringUtils.EMPTY, BarColor.GREEN, BarStyle.SOLID);
+        this.bossBar = Bukkit.createBossBar("", BarColor.GREEN, BarStyle.SOLID);
     }
 
     public void start(int duration) {

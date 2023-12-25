@@ -51,6 +51,10 @@ public class PlayerActionCache implements Listener {
 
     private boolean hasBlockChanged(Player player) {
         for (Location location : this.blockChangeLocations) {
+            if (!location.getWorld().equals(player.getWorld())) {
+                return false;
+            }
+
             if (location.distance(player.getLocation()) < ExposureDamageManager.TEST_RADIUS) {
                 return true;
             }
